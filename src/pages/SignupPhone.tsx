@@ -76,52 +76,52 @@ const SignupPage: React.FC = () => {
 const navigate=useNavigate()
   // Initialize reCAPTCHA only once on mount for phone authentication
   useEffect(() => {
-    const recaptchaContainer = document.getElementById("recaptcha-container");
-    if (!recaptchaContainer) {
-      console.error("reCAPTCHA container not found");
-      alert("reCAPTCHA setup failed. Please refresh the page.");
-      return;
-    }
-    if (!window.recaptchaVerifier) {
-      try {
-        window.recaptchaVerifier = new RecaptchaVerifier(
-          auth,
-          "recaptcha-container",
-          {
-            size: "invisible",
-            callback: () => {
-              console.log("reCAPTCHA verified");
-            },
-            "expired-callback": () => {
-              console.error("reCAPTCHA expired");
-              window.recaptchaVerifier?.clear();
-              window.recaptchaVerifier = undefined;
-              alert("reCAPTCHA expired. Please refresh the page.");
-            },
-          }
-        );
+    // const recaptchaContainer = document.getElementById("recaptcha-container");
+    // if (!recaptchaContainer) {
+    //   console.error("reCAPTCHA container not found");
+    //   alert("reCAPTCHA setup failed. Please refresh the page.");
+    //   return;
+    // }
+    // if (!window.recaptchaVerifier) {
+    //   try {
+    //     window.recaptchaVerifier = new RecaptchaVerifier(
+    //       auth,
+    //       "recaptcha-container",
+    //       {
+    //         size: "invisible",
+    //         callback: () => {
+    //           console.log("reCAPTCHA verified");
+    //         },
+    //         "expired-callback": () => {
+    //           console.error("reCAPTCHA expired");
+    //           window.recaptchaVerifier?.clear();
+    //           window.recaptchaVerifier = undefined;
+    //           alert("reCAPTCHA expired. Please refresh the page.");
+    //         },
+    //       }
+    //     );
 
-        window.recaptchaVerifier.render().then((widgetId: number) => {
-          console.log("3");
-          window.recaptchaWidgetId = widgetId;
-        }).catch((error) => {
-          console.error("Error rendering reCAPTCHA:", error);
-          console.log("4");
-          alert("Failed to load reCAPTCHA. Please check your network and try again.");
-        });
-      } catch (error) {
-        console.log("5");
-        console.error("Error initializing reCAPTCHA:", error);
-        alert("Error setting up reCAPTCHA. Please try again.");
-      }
-    }
+    //     window.recaptchaVerifier.render().then((widgetId: number) => {
+    //       console.log("3");
+    //       window.recaptchaWidgetId = widgetId;
+    //     }).catch((error) => {
+    //       console.error("Error rendering reCAPTCHA:", error);
+    //       console.log("4");
+    //       alert("Failed to load reCAPTCHA. Please check your network and try again.");
+    //     });
+    //   } catch (error) {
+    //     console.log("5");
+    //     console.error("Error initializing reCAPTCHA:", error);
+    //     alert("Error setting up reCAPTCHA. Please try again.");
+    //   }
+    // }
 
-    return () => {
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-        window.recaptchaVerifier = undefined;
-      }
-    };
+    // return () => {
+    //   if (window.recaptchaVerifier) {
+    //     window.recaptchaVerifier.clear();
+    //     window.recaptchaVerifier = undefined;
+    //   }
+    // };
   }, []);
 
   // Handle signup submission (phone or email)

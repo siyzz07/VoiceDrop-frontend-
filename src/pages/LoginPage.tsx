@@ -1,52 +1,78 @@
-import React, { useEffect } from 'react';
-import Navbar from '../components/Navbar';
-import { useTheme } from '../context/ThemeContext';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
+import React, { useEffect } from "react";
+import Navbar from "../components/Navbar";
+import { useTheme } from "../context/ThemeContext";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../services/UserAPI";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../redux/Slice";
 
 const LoginSchema = Yup.object().shape({
-  phoneNumber: Yup.string()
-    .required('Phone number is required')
-    .matches(/^\d{10}$/, 'Phone number must be 10 digits'),
+  email: Yup.string()
+    .email("Invalid email format")
+    .required("Email is required"),
   password: Yup.string()
-    .required('Password is required')
-    .min(6, 'Password must be at least 6 characters'),
+    .required("Password is required")
+    .min(6, "Password must be at least 6 characters"),
 });
 
 const LoginPage = () => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
+  const dispathc = useDispatch();
 
-  const handleLogin = (values:any) => {
-    console.log('Login Values:', values);
+  const handleLogin = async (values: any) => {
+    try {
+      const response = await loginUser(values);
+      if (response?.token) {
+        localStorage.setItem("token", response.token);
+        dispathc(loginSuccess(response.token));
+        navigate("/home");
+      }
+    } catch (error: any) {
+      if (error.response.data.message) {
+        toast.error(error.response.data.message);
+      }
+      console.log(error.message);
+    }
   };
-  useEffect(()=>{
-      const email=localStorage.getItem('userEmail')
-      const signUp=localStorage.getItem('signUp');
-  
-      if(email){
-          localStorage.removeItem('userEmail')
-      }
-      if(signUp){
-        localStorage.removeItem('signUp')
-      }
-      
-    },[])
+
+  useEffect(() => {
+    const Useremail = localStorage.getItem("userEmail");
+    const signUp = localStorage.getItem("signUp");
+
+    if (Useremail) {
+      localStorage.removeItem("userEmail");
+    }
+    if (signUp) {
+      localStorage.removeItem("signUp");
+    }
+  }, []);
 
   return (
-    <div className={`${isDarkMode ? 'bg-[#1b1818] text-white' : 'bg-gray-200 text-black'} min-h-screen`}>
+    <div
+      className={`${
+        isDarkMode ? "bg-[#1b1818] text-white" : "bg-gray-200 text-black"
+      } min-h-screen`}
+    >
       <Navbar />
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4">
         <div
           className={`rounded-2xl shadow-lg p-8 w-full max-w-md ${
-            isDarkMode ? 'bg-[#2d2c2c] text-white' : 'bg-white text-black'
+            isDarkMode ? "bg-[#2d2c2c] text-white" : "bg-white text-black"
           }`}
         >
-          <h2 className="text-2xl font-bold text-center mb-4">Welcome to Voice Drop</h2>
+          <h2 className="text-2xl font-bold text-center mb-4">
+            Welcome to Voice Drop
+          </h2>
           <p className="text-center text-sm mb-6">
-            Login to access your account and enjoy seamless voice sharing and communication.
+            Login to access your account and enjoy seamless voice sharing and
+            communication.
           </p>
           <Formik
-            initialValues={{ phoneNumber: '', password: '' }}
+            initialValues={{ email: "", password: "" }}
             validationSchema={LoginSchema}
             onSubmit={handleLogin}
           >
@@ -54,16 +80,16 @@ const LoginPage = () => {
               <Form>
                 <div className="mb-4">
                   <label className="block text-sm mb-2" htmlFor="phoneNumber">
-                    Phone Number
+                    Email
                   </label>
                   <Field
-                    type="text"
-                    id="phoneNumber"
-                    name="phoneNumber"
+                    type="email"
+                    id="email"
+                    name="email"
                     className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <ErrorMessage
-                    name="phoneNumber"
+                    name="email"
                     component="div"
                     className="text-red-500 text-xs mt-1"
                   />
@@ -95,10 +121,10 @@ const LoginPage = () => {
           </Formik>
           <div className="mt-4 text-center">
             <p className="text-sm">
-              Don’t have an account?{' '}
+              Don’t have an account?{" "}
               <span
                 className="text-blue-600 font-semibold cursor-pointer hover:underline"
-                onClick={() => console.log('Signup Clicked')}
+                onClick={() => navigate("/signup")}
               >
                 Signup
               </span>

@@ -1,140 +1,42 @@
-// import React from 'react';
-// import Navbar from '../components/Navbar';
-// import { useTheme } from '../context/ThemeContext';
-// import { Formik, Form, Field, ErrorMessage } from 'formik';
-// import * as Yup from 'yup';
+// <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-gray-900 text-white">
+    //   {/* Navbar Component */}
+    //   <Navbar/>
 
+    //   <header className="flex justify-between items-center mb-10">
+    //     <div className="flex items-center space-x-4">
+    //       <svg className="w-8 h-8 text-yellow-400 animate-wave" fill="currentColor" viewBox="0 0 20 20">
+    //         <path d="M12 5H8v2h4V5zM8 9h4v2H8V9zm0 4h4v2H8v-2zm-6-8h2v10H2V5zm16 0h-2v10h2V5z" />
+    //       </svg>
+    //       <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Coderhouse</h1>
+    //     </div>
+    //     <div className="flex items-center space-x-4">
+    //       <span className="text-gray-200 font-medium hidden sm:block">Rakesh K</span>
+    //       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-600 ring-2 ring-blue-400 flex items-center justify-center text-white font-semibold text-lg sm:text-xl">
+    //         RK
+    //       </div>
+    //     </div>
+    //   </header>
 
-// const SignupSchema = Yup.object().shape({
-//   name: Yup.string().required('Name is required'),
-//   phoneNumber: Yup.string()
-//     .required('Phone number is required')
-//     .matches(/^\d{10}$/, 'Phone number must be 10 digits'),
-//   email: Yup.string()
-//     .email('Invalid email address')
-//     .required('Email is required'),
-//   password: Yup.string()
-//     .required('Password is required')
-//     .min(6, 'Password must be at least 6 characters'),
-// });
+    //   <section className="flex flex-col sm:flex-row justify-between items-center mb-10 gap-4">
+    //     <div className="relative w-full sm:flex-1 sm:mr-6">
+    //       <input
+    //         type="text"
+    //         placeholder="Search voice rooms..."
+    //         className="w-full p-3 pl-10 rounded-lg bg-gray-800 border border-gray-700 focus:ring-2 focus:ring-blue-500 text-gray-200 placeholder-gray-500"
+    //       />
+    //       <svg className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+    //         <path d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" />
+    //       </svg>
+    //     </div>
+    //     <button className="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-lg flex items-center">
+    //       <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+    //         <path d="M2 4a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V4zm4 6a2 2 0 100-4 2 2 0 000 4zm0 2a2 2 0 100 4 2 2 0 000-4zm8-2a2 2 0 100-4 2 2 0 000 4zm0 2a2 2 0 100 4 2 2 0 000-4z" />
+    //       </svg>
+    //       Start a room
+    //     </button>
+    //   </section>
 
-
-
-// const SignupNamePasswordPage = () => {
-//  const { isDarkMode } = useTheme();
-
-//   const handleSignup = (values:any) => {
-//     console.log('Signup Values:', values);
-//   };
-
-//   return (
-//     <div className={`${isDarkMode ? 'bg-[#1b1818] text-white' : 'bg-gray-200 text-black'} min-h-screen`}>
-//       <Navbar />
-//       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4">
-//         <div
-//           className={`rounded-2xl shadow-lg p-8 w-full max-w-md ${
-//             isDarkMode ? 'bg-[#2d2c2c] text-white' : 'bg-white text-black'
-//           }`}
-//         >
-//           <h2 className="text-2xl font-bold text-center mb-4">Create an Account</h2>
-//           <p className="text-center text-sm mb-6">
-//             Join Voice Drop to share and communicate effortlessly. Let's get started!
-//           </p>
-//           <Formik
-//             initialValues={{phoneNumber: ''}}
-//             validationSchema={SignupSchema}
-//             onSubmit={handleSignup}
-//           >
-//             {() => (
-//               <Form>
-//                 <div className="mb-4">
-//                   <label className="block text-sm mb-2" htmlFor="name">
-//                     Name
-//                   </label>
-//                   <Field
-//                     type="text"
-//                     id="name"
-//                     name="name"
-//                     className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-//                   />
-//                   <ErrorMessage
-//                     name="name"
-//                     component="div"
-//                     className="text-red-500 text-xs mt-1"
-//                   />
-//                 </div>
-//                 <div className="mb-4">
-//                   <label className="block text-sm mb-2" htmlFor="phoneNumber">
-//                     Phone Number
-//                   </label>
-//                   <Field
-//                     type="text"
-//                     id="phoneNumber"
-//                     name="phoneNumber"
-//                     className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-//                   />
-//                   <ErrorMessage
-//                     name="phoneNumber"
-//                     component="div"
-//                     className="text-red-500 text-xs mt-1"
-//                   />
-//                 </div>
-//                 <div className="mb-4">
-//                   <label className="block text-sm mb-2" htmlFor="email">
-//                     Email
-//                   </label>
-//                   <Field
-//                     type="email"
-//                     id="email"
-//                     name="email"
-//                     className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-//                   />
-//                   <ErrorMessage
-//                     name="email"
-//                     component="div"
-//                     className="text-red-500 text-xs mt-1"
-//                   />
-//                 </div>
-//                 <div className="mb-4">
-//                   <label className="block text-sm mb-2" htmlFor="password">
-//                     Password
-//                   </label>
-//                   <Field
-//                     type="password"
-//                     id="password"
-//                     name="password"
-//                     className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-//                   />
-//                   <ErrorMessage
-//                     name="password"
-//                     component="div"
-//                     className="text-red-500 text-xs mt-1"
-//                   />
-//                 </div>
-//                 <button
-//                   type="submit"
-//                   className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-500 transition duration-300"
-//                 >
-//                   Finish
-//                 </button>
-//               </Form>
-//             )}
-//           </Formik>
-//           <div className="mt-4 text-center">
-//             <p className="text-sm">
-//               Already have an account?{' '}
-//               <span
-//                 className="text-blue-600 font-semibold cursor-pointer hover:underline"
-//                 onClick={() => console.log('Login Clicked')}
-//               >
-//                 Login
-//               </span>
-//             </p>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default SignupNamePasswordPage
+    //   <main className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    //     {/* Add room cards dynamically here */}
+    //   </main>
+    // </div>
