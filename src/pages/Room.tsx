@@ -308,11 +308,10 @@ import { useTheme } from "../context/ThemeContext";
 import { useNavigate, useParams } from "react-router-dom";
 import socket from "../config/Socket";
 import { roomExist } from "../services/UserAPI";
-import AgoraRTC  from "agora-rtc-sdk-ng";
-import type { IAgoraRTCClient, IRemoteAudioTrack} from 'agora-rtc-sdk-ng'
+import AgoraRTC from "agora-rtc-sdk-ng";
+import type { IAgoraRTCClient, IRemoteAudioTrack } from "agora-rtc-sdk-ng";
 import type IRemoteUser from "agora-rtc-sdk-ng";
 
-// Agora App ID from .env
 const appId = import.meta.env.VITE_AGORA_APP_ID;
 const token = null;
 
@@ -323,6 +322,7 @@ const Room = () => {
 
   const [topic, setTopic] = useState<string>("Loading...");
   const [participants, setParticipants] = useState<any[]>([]);
+  const [isMicOn, setIsMicOn] = useState<boolean>(false); // Mic starts muted
 
   const clientRef = useRef<IAgoraRTCClient | null>(null);
   const localAudioTrackRef = useRef<any>(null);
@@ -352,27 +352,33 @@ const Room = () => {
     const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
     clientRef.current = client;
 
-    //  Handle when another user joins and publishes audio
     client.on("user-published", async (user:any, mediaType) => {
       await client.subscribe(user, mediaType);
       if (mediaType === "audio") {
         const remoteAudioTrack = user.audioTrack as IRemoteAudioTrack;
-        remoteAudioTrack.play(); // 
+        remoteAudioTrack.play();
       }
     });
 
-    //  handle user leaving or unpublishing
     client.on("user-unpublished", (user, mediaType) => {
       console.log("User unpublished:", user.uid, mediaType);
     });
 
-  
     await client.join(appId, roomId, token, null);
 
-    
     const localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+    await localAudioTrack.setEnabled(false); // 🔇 start muted
     localAudioTrackRef.current = localAudioTrack;
+
     await client.publish([localAudioTrack]);
+  };
+
+  const toggleMic = () => {
+    if (localAudioTrackRef.current) {
+      const current = localAudioTrackRef.current.isEnabled;
+      localAudioTrackRef.current.setEnabled(!current);
+      setIsMicOn(!current);
+    }
   };
 
   const leaveChannel = async () => {
@@ -456,6 +462,28 @@ const Room = () => {
                 No participants in the room yet.
               </p>
             )}
+          </div>
+
+          {/* 🔇 Mic On/Off Button */}
+          {/* 🎤 Mic and Leave Buttons - Bottom Right */}
+          <div className="fixed bottom-6 right-6 flex gap-4">
+            <button
+              onClick={toggleMic}
+              className={`px-4 py-2 rounded-full shadow-lg font-semibold transition ${
+                isMicOn
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "bg-red-600 hover:bg-red-700"
+              } text-white`}
+            >
+              {isMicOn ? "🎙️ On" : "🔇 Off"}
+            </button>
+
+            <button
+              onClick={leaveChannel}
+              className="px-4 py-2 rounded-full bg-gray-800 hover:bg-black text-white shadow-lg font-semibold transition"
+            >
+              🚪 Leave
+            </button>
           </div>
         </section>
       </div>
