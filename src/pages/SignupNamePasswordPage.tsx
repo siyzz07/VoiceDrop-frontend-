@@ -36,7 +36,7 @@
     //     </button>
     //   </section>
 
-    //   <main className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    //    <main className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     //     {/* Add room cards dynamically here */}
     //   </main>
     // </div>

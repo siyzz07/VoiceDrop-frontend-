@@ -54,7 +54,7 @@ const UserRoutes = () => {
         }
       />
       <Route
-        path="/room"
+        path="/room/:roomId"
         element={
           <ProtectedRoute>
             <Room />

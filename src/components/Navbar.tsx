@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { styled } from "@mui/material/styles";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -57,7 +57,7 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   },
 }));
 
-const UserInfo = ({ user, onNameClick }: any) => (
+const UserInfo = ({ user,userName, onNameClick }: any) => (
   <div className="flex items-center space-x-3 relative">
     <img
       src={user.profilePicture}
@@ -68,7 +68,7 @@ const UserInfo = ({ user, onNameClick }: any) => (
       onClick={onNameClick}
       className="font-semibold text-lg cursor-pointer hover:underline"
     >
-      {user.name}
+      {userName}
     </span>
   </div>
 );
@@ -76,11 +76,10 @@ const UserInfo = ({ user, onNameClick }: any) => (
 const Navbar = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userName,setUserName]=useState<any>()
+  const [user,setUser]=useState<any>(false)
 
-  const user = {
-    name: "John Doeyyyyyyy",
-    profilePicture: "https://via.placeholder.com/150",
-  };
+  
 
   const handleLogout = () => {
     console.log("User logged out");
@@ -94,6 +93,12 @@ const Navbar = () => {
     setMenuOpen(false);
   };
 
+
+  useEffect(()=>{
+    
+    let userName=localStorage.getItem("userName")
+    setUserName(userName)
+  },[])
   return (
     <nav
       className={`w-full px-4 py-2 flex justify-between items-center ${
@@ -103,7 +108,10 @@ const Navbar = () => {
       <h1 className="text-2xl font-bold">Voice Drop</h1>
 
       <div className="flex items-center space-x-4 relative">
-        <UserInfo user={user} onNameClick={handleNameClick} />
+
+      {userName &&
+        <UserInfo user={user} userName={userName} onNameClick={handleNameClick} />
+      }
 
         {menuOpen && (
           <ClickAwayListener onClickAway={handleClickAway}>

@@ -8,6 +8,7 @@ import { loginUser } from "../services/UserAPI";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../redux/Slice";
+import socket from "../config/Socket";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
@@ -28,7 +29,13 @@ const LoginPage = () => {
       const response = await loginUser(values);
       if (response?.token) {
         localStorage.setItem("token", response.token);
+        localStorage.setItem("userName", response.userName);
         dispathc(loginSuccess(response.token));
+        socket.connect();
+
+        socket.on("connect", () => {
+          console.log("Socket connected:", socket.id);
+        });
         navigate("/home");
       }
     } catch (error: any) {

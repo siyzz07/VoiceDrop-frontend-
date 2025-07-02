@@ -1,7 +1,6 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup"; // For validation
-import { useTheme } from "../context/ThemeContext";
 import TextField from "@mui/material/TextField";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -10,47 +9,15 @@ import FormControl from "@mui/material/FormControl";
 import GroupIcon from "@mui/icons-material/Group";
 import LockIcon from "@mui/icons-material/Lock";
 import Button from "@mui/material/Button";
+import { createRoom } from "../services/UserAPI";
+import { useNavigate } from "react-router-dom";
 
-const CreateRoomPopup = ({popup}:any) => {
-  const { isDarkMode } = useTheme();
-
-  const cardStyles = isDarkMode
-    ? "bg-[#2d2c2c] text-gray-100 shadow-xl"
-    : "bg-white text-gray-900 shadow-md";
-
-  const headingStyles = isDarkMode ? "text-white" : "text-gray-900";
-
-  const inputStyles = {
-    "& .MuiOutlinedInput-root": {
-      backgroundColor: isDarkMode ? "#3e3e3e" : "#ffffff",
-      color: isDarkMode ? "#f5f5f5" : "#000",
-      "& fieldset": {
-        borderColor: isDarkMode ? "#707070" : "#cfcfcf",
-      },
-      "&:hover fieldset": {
-        borderColor: isDarkMode ? "#a1a1a1" : "#000",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: isDarkMode ? "#ffffff" : "#000",
-      },
-    },
-    "& .MuiInputLabel-root": {
-      color: isDarkMode ? "#cfcfcf" : "#707070",
-    },
-    "& .Mui-focused": {
-      color: isDarkMode ? "#ffffff" : "#000",
-    },
-  };
-
-  const buttonStyles = isDarkMode
-    ? "bg-blue-600 text-white hover:bg-blue-700"
-    : "bg-blue-500 text-white hover:bg-blue-600";
-
- 
+const CreateRoomPopup = ({ popup }:any) => {
+  const navigate=useNavigate()
   const formik = useFormik({
     initialValues: {
       topic: "",
-      roomType: "open",
+      roomType: "Open",
     },
     validationSchema: Yup.object({
       topic: Yup.string()
@@ -58,43 +25,45 @@ const CreateRoomPopup = ({popup}:any) => {
         .required("Topic is required"),
       roomType: Yup.string().required("Room type is required"),
     }),
-    onSubmit: (values) => {
-      
+
+
+
+
+    //----------------------------------create room------------
+
+    onSubmit: async (values) => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await createRoom(values, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response) {
+          popup(); 
+          navigate(`/room/${response.data.roomId}`)
+
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
   });
 
   return (
     <div>
-      <div
-        className="relative z-10"
-        aria-labelledby="modal-title"
-        role="dialog"
-        aria-modal="true"
-      >
-        <div
-          className="fixed inset-0 bg-black/50 transition-opacity"
-          aria-hidden="true"
-        ></div>
-
+      <div className="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 bg-black/50 transition-opacity" aria-hidden="true"></div>
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div className="flex min-h-screen items-center justify-center p-4 sm:p-6">
-            <div
-              className={`relative transform overflow-hidden rounded-2xl ${cardStyles} w-full max-w-lg`}
-            >
+            <div className="relative transform overflow-hidden rounded-2xl bg-white shadow-xl w-full max-w-lg">
               <form onSubmit={formik.handleSubmit}>
                 <div className="px-6 pt-6 pb-8">
                   {/* Heading */}
                   <div className="flex justify-between items-center">
-                    <h2
-                      className={`text-2xl md:text-3xl font-semibold mb-6 ${headingStyles}`}
-                    >
-                      Create a Room
-                    </h2>
+                    <h2 className="text-2xl md:text-3xl font-semibold mb-6">Create a Room</h2>
                     <p
                       className="text-xl pb-5 cursor-pointer hover:text-red-600"
                       aria-label="Close modal"
-                      onClick={popup()}
-                      // Add close function here
+                      onClick={popup} 
                     >
                       X
                     </p>
@@ -106,7 +75,6 @@ const CreateRoomPopup = ({popup}:any) => {
                     label="Enter the topic to be discussed"
                     variant="outlined"
                     className="mb-6"
-                    sx={inputStyles}
                     name="topic"
                     value={formik.values.topic}
                     onChange={formik.handleChange}
@@ -123,10 +91,9 @@ const CreateRoomPopup = ({popup}:any) => {
                       name="roomType"
                       value={formik.values.roomType}
                       onChange={formik.handleChange}
-                      className="flex flex-wrap"
                     >
                       <FormControlLabel
-                        value="open"
+                        value="Open"
                         control={<Radio />}
                         label={
                           <span className="flex items-center">
@@ -136,7 +103,7 @@ const CreateRoomPopup = ({popup}:any) => {
                         }
                       />
                       <FormControlLabel
-                        value="private"
+                        value="Private"
                         control={<Radio />}
                         label={
                           <span className="flex items-center">
@@ -150,11 +117,7 @@ const CreateRoomPopup = ({popup}:any) => {
 
                   {/* Create Button */}
                   <div className="mt-6 flex justify-center sm:justify-end">
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      className={`rounded-lg px-6 py-2 font-semibold ${buttonStyles}`}
-                    >
+                    <Button type="submit" variant="contained" className="rounded-lg px-6 py-2 font-semibold bg-blue-500 text-white hover:bg-blue-600">
                       Create
                     </Button>
                   </div>

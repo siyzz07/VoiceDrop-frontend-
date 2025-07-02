@@ -9,12 +9,12 @@ import { Provider } from "react-redux";
 import store from "./redux/Store.tsx";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  // <StrictMode>
     <ThemeProvider>
       <ToastContainer autoClose={2000} />
       <Provider store={store}>
       <App />
       </Provider>
     </ThemeProvider>
-  </StrictMode>
+  /* </StrictMode> */
 );

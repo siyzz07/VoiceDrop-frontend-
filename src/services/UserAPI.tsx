@@ -44,6 +44,31 @@ export const loginUser=async(values:object):Promise<any>=>{
 
 
 /////--------------------------------------------------- create a room
-export const createRoom=async(values:object):Promise<any>=>{
-
+export const createRoom=async(values:object,headers:any):Promise<any>=>{
+        const response=await API.post('/createRoom',values,headers)
+        return response
 }
+
+//------------------------------------------------------ check room exitst
+export const roomExist= async (roomId:any):Promise<any>=>{
+    const response=await API.get(`checkRoom/${roomId}`)
+    return response
+}
+
+
+// async function checkRoomExist() {
+//     try {
+//       const response = await roomExist(roomId);
+//       console.log(response?.data?.check);
+      
+//       if(response?.data?.check!==true){
+//         navigate('/home')
+//       }else{
+//         handleJoinRoom ()
+//       }
+      
+//     } catch (error: any) {
+//       console.log("error section");
+//       console.log(error.message);
+//     }
+//   }

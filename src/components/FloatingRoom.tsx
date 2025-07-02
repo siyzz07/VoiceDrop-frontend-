@@ -41,7 +41,7 @@ const FloatingRoom = () => {
       }`}
     >
       <div
-        className={`absolute max-w-full h-auto p-2 sm:p-6 cursor-grab shadow-lg rounded-2xl
+        className={`absolute max-w-full z-50 h-auto p-2 sm:p-6 cursor-grab shadow-lg rounded-2xl
           ${darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"}
           w-40 sm:w-80 md:w-96
         `}
