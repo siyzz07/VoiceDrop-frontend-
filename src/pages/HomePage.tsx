@@ -7,42 +7,56 @@ import Chat from "../components/Chat";
 import FloatingRoom from "../components/FloatingRoom";
 import socket from "../config/Socket";
 import { useNavigate } from "react-router-dom";
-
-
+import { number } from "yup";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { roomIn } from "../redux/RoomSlice";
+import RoomPassword from "../components/RoomPassword";
 
 const HomePage = () => {
   const { isDarkMode } = useTheme();
   const [createRoom, setCreateRoom] = useState<boolean>(false);
   const [roomData, setRoomData] = useState<any>([]);
-  const navigate=useNavigate()
-// console.log("dddd");
+  const [filter, setFilter] = useState<any>([]);
+  const [roomPassword, setRoomPassword] = useState<boolean>(false);
+  const [password,setPassword] = useState('')
+  const [IDroom,setIDRoom] = useState('')
 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  // console.log("dddd");
   useEffect(() => {
-    // socket.connect();
+    socket.emit("get_data");
 
-    socket.emit("get_data")
-    socket.on("room_data",(data)=>{
-      setRoomData(data)
-    })
-
-    // socket.on("connect", () => {
-    //   console.log("Socket connected:", socket.id);
-    // });
-    socket.on("data-updated", (data) => {
-      setRoomData(data)
+    socket.on("room_data", (data) => {
+      setRoomData(data);
+      setFilter(data);
     });
-   
-    
+
+    socket.on("data-updated", (data) => {
+      setRoomData(data);
+      setFilter(data);
+    });
 
     return () => {
-      // socket.off("connect");
-      // socket.disconnect();
+      socket.off("room_data");
+      socket.off("data-updated");
     };
   }, []);
 
+  const search = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
 
+    const result = roomData.filter((val: any) =>
+      val.topic.toLowerCase().includes(value.toLowerCase())
+    );
 
-  
+    setFilter(result);
+  };
+
+  // useEffect(() => {
+  //   console.log("Updated filter:", filter);
+  // }, [filter]);
 
   const containerStyles = isDarkMode
     ? "bg-[#1b1818] text-white"
@@ -58,15 +72,37 @@ const HomePage = () => {
 
   //------------------------ fetch popup data ----------------------
 
-  const closePopup = () => {
-    setCreateRoom(false);
+  //  function deletRoom(){
+
+  //  }
+
+  const roomEnter = (roomId: any, roomType: any,passwordRoom:any) => {
+    if (roomType == "Private") {
+          setPassword(passwordRoom)
+          setRoomPassword(true)
+          setIDRoom(roomId)
+    } else {
+      dispatch(roomIn(roomId));
+      navigate(`/room/${roomId}`);
+    }
   };
+
+  const closePopup = () => {
+    setRoomPassword(false);
+  };
+
+   const closeRoomPopup = () => {
+    setRoomPassword(false);
+  };
+
+
   return (
     <div>
       <div
         className={`${containerStyles} min-h-screen relative overflow-hidden font-sans antialiased`}
       >
         {createRoom && <CreateRoomPopup popup={closePopup} />}
+        {roomPassword && <RoomPassword popup={closeRoomPopup} password={password} roomId={IDroom}/>}
         <Navbar />
         {/* <FloatingRoom/> */}
         <header
@@ -76,6 +112,7 @@ const HomePage = () => {
             <input
               type="text"
               placeholder="Search voice rooms..."
+              onChange={search}
               className={`w-full p-3 pl-10 rounded-lg border shadow-sm focus:outline-none focus:ring-2 transition-all duration-300 ${inputStyles}`}
               aria-label="Search voice rooms"
             />
@@ -121,14 +158,15 @@ const HomePage = () => {
           </div>
         </header>
         <main className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 sm:px-6 lg:px-8 py-6">
-          {roomData.map((room: any, index: any) => (
+          {filter.map((room: any, index: any) => (
             <div
               key={index}
               className={`p-5 rounded-xl shadow-lg cursor-pointer transition-all duration-300 transform hover:scale-105 hover:z-[999] ${cardStyles}`}
               role="button"
               tabIndex={0}
               aria-label={`Join room: ${room.topic}`}
-              onClick={()=>navigate(`/room/${room.roomId}`)}
+              onClick={() => roomEnter(room.roomId, room.type,room?.password)}
+              // onClick={()=>navigate(`/room/${room.roomId}`)}
             >
               <h3 className="text-lg font-semibold mb-3 line-clamp-2">
                 {room.topic}
@@ -143,18 +181,41 @@ const HomePage = () => {
                 </div>
               ))} */}
               </div>
-              <div className="flex items-center text-gray-400">
-                <svg
-                  className="w-5 h-5 mr-2"
+              <div className="flex items-center justify-between text-gray-400 w-full">
+                {/* Left side: participants */}
+                <div className="flex items-center">
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                  >
+                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+                  </svg>
+                  <span className="text-sm font-medium">
+                    {room.participants.length} participants
+                  </span>
+                </div>
+
+                {/* Right side: lock */}
+                { room.type == "Private" &&
+                  <svg
+                  className="w-5 h-5 ml-2"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   aria-hidden="true"
                 >
-                  <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+                  <path
+                    fillRule="evenodd"
+                    d="M10 2a4 4 0 00-4 4v2H5a2 2 0 
+         00-2 2v6a2 2 0 
+         002 2h10a2 2 0 002-2v-6a2 2 0 
+         00-2-2h-1V6a4 4 0 00-4-4zm-2 
+         6V6a2 2 0 114 0v2H8z"
+                    clipRule="evenodd"
+                  />
                 </svg>
-                {/* <span className="text-sm font-medium">
-                {room.participants} participants
-              </span> */}
+                }
               </div>
             </div>
           ))}

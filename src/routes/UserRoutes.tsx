@@ -9,6 +9,9 @@ import HomePage from "../pages/HomePage";
 import Room from "../pages/Room";
 import PublicRoute from "./PublicRoute";
 import ProtectedRoute from "./ProtectedRoute";
+import UserProfilePage from "../pages/UserProfilePage";
+import RoomProtect from "./RoomProtect";
+import RoomPublic from "./RoomPublic";
 
 const UserRoutes = () => {
   return (
@@ -17,7 +20,9 @@ const UserRoutes = () => {
         path="/"
         element={
           <PublicRoute>
+            {/* <RoomProtect> */}
             <IntroPage />
+            {/* </RoomProtect> */}
           </PublicRoute>
         }
       />
@@ -25,7 +30,9 @@ const UserRoutes = () => {
         path="/login"
         element={
           <PublicRoute>
+            {/* <RoomProtect> */}
             <LoginPage />
+            {/* </RoomProtect> */}
           </PublicRoute>
         }
       />
@@ -33,7 +40,9 @@ const UserRoutes = () => {
         path="/signup"
         element={
           <PublicRoute>
+            {/* <RoomProtect> */}
             <SignupPage />
+            {/* </RoomProtect> */}
           </PublicRoute>
         }
       />
@@ -41,7 +50,9 @@ const UserRoutes = () => {
         path="/otp"
         element={
           <PublicRoute>
+            {/* <RoomProtect> */}
             <OtpPage />
+            {/* </RoomProtect> */}
           </PublicRoute>
         }
       />
@@ -49,7 +60,12 @@ const UserRoutes = () => {
         path="/home"
         element={
           <ProtectedRoute>
+            {/* <RoomProtect> */}
+            <RoomPublic>
             <HomePage />
+
+            </RoomPublic>
+            {/* </RoomProtect> */}
           </ProtectedRoute>
         }
       />
@@ -57,10 +73,18 @@ const UserRoutes = () => {
         path="/room/:roomId"
         element={
           <ProtectedRoute>
+            <RoomProtect>
+            {/* <RoomPublic> */}
+
             <Room />
+            {/* </RoomPublic> */}
+            </RoomProtect>
           </ProtectedRoute>
         }
       />
+
+      <Route path="/profile" element={<UserProfilePage />} />
+
       {/* <Route path='/signup' element={<SignupNamePasswordPage/>}/> */}
     </Routes>
   );
