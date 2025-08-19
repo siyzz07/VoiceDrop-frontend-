@@ -88,7 +88,7 @@ const HomePage = () => {
   };
 
   const closePopup = () => {
-    setRoomPassword(false);
+    setCreateRoom(false);
   };
 
    const closeRoomPopup = () => {
@@ -177,7 +177,7 @@ const HomePage = () => {
                   <div
                     className={`w-6 h-6 rounded-full ${host.color} ring-2 ring-gray-600 mr-2`}
                   ></div>
-                  <span className="text-sm font-medium">{host.name}</span>
+                  <span class   Name="text-sm font-medium">{host.name}</span>
                 </div>
               ))} */}
               </div>

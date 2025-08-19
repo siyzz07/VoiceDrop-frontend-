@@ -28,6 +28,7 @@ const dispatch = useDispatch()
     validationSchema: Yup.object({
       topic: Yup.string()
         .min(3, "Topic must be at least 3 characters long")
+        .max(30,"Topic can only include lessthan 30 character")
         .required("Topic is required"),
       roomType: Yup.string().required("Room type is required"),
     }),
