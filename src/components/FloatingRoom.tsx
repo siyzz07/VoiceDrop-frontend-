@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const FloatingRoom = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });

@@ -7,8 +7,7 @@ const RoomPublic = ({ children }: { children: React.ReactNode }) => {
 //   const { roomId } = useParams(); 
 // const { roomId }: any = useParams<{ roomId: string }>();
   const roomId = useSelector((state:any)=>state.roomCheck.roomId)
-  console.log("pppppppppppppppp",inRoom,"uuuuuuuuuuuuuuuuuuuuuuu",roomId);
-  console.log(inRoom == false,"=================================-----------");
+  
   
   if (inRoom == true) {
     

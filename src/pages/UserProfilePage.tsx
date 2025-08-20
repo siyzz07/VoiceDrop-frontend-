@@ -5,7 +5,7 @@ const UserProfilePage = () => {
   const { isDarkMode } = useTheme();
 
   const [name, setName] = useState("Shibin Siyad");
-  const [gender, setGender] = useState("male");
+  // const [gender, setGender] = useState("male");
   const [showImage, setShowImage] = useState(true);
   const [image, setImage] = useState("carr.jpeg"); // default image
 

@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { auth } from "../config/FirebaseConfig";
 
 const token = localStorage.getItem("token");
 

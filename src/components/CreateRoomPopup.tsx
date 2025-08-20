@@ -14,14 +14,10 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { roomIn } from "../redux/RoomSlice";
 import { useTheme } from "../context/ThemeContext";
-const CreateRoomPopup = ({ popup }:any) => {
+const CreateRoomPopup = ({ popup }: any) => {
+  const dispatch = useDispatch();
 
-
-  const { isDarkMode } = useTheme();
-
-const dispatch = useDispatch()
-
-  const navigate=useNavigate()
+  const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
       topic: "",
@@ -30,28 +26,24 @@ const dispatch = useDispatch()
     validationSchema: Yup.object({
       topic: Yup.string()
         .min(3, "Topic must be at least 3 characters long")
-        .max(30,"Topic can only include lessthan 30 character")
+        .max(30, "Topic can only include lessthan 30 character")
         .required("Topic is required"),
       roomType: Yup.string().required("Room type is required"),
     }),
-
-
-
 
     //----------------------------------create room------------
 
     onSubmit: async (values) => {
       try {
         const token = localStorage.getItem("token");
-        
+
         const response = await createRoom(values, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response) {
-          popup(); 
-           dispatch(roomIn(response.data.roomId));
-          navigate(`/room/${response.data.roomId}`)
-
+          popup();
+          dispatch(roomIn(response.data.roomId));
+          navigate(`/room/${response.data.roomId}`);
         }
       } catch (error) {
         console.log(error);
@@ -61,8 +53,16 @@ const dispatch = useDispatch()
 
   return (
     <div>
-      <div className="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div className="fixed inset-0 bg-black/50 transition-opacity" aria-hidden="true"></div>
+      <div
+        className="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          className="fixed inset-0 bg-black/50 transition-opacity"
+          aria-hidden="true"
+        ></div>
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div className="flex min-h-screen items-center justify-center p-4 sm:p-6">
             <div className="relative transform overflow-hidden rounded-2xl bg-white shadow-xl w-full max-w-lg">
@@ -70,11 +70,15 @@ const dispatch = useDispatch()
                 <div className="px-6 pt-6 pb-8">
                   {/* Heading */}
                   <div className="flex justify-between items-center">
-                    <h2 className={`text-2xl md:text-3xl font-semibold mb-6 text-black`}>Create a Room</h2>
+                    <h2
+                      className={`text-2xl md:text-3xl font-semibold mb-6 text-black`}
+                    >
+                      Create a Room
+                    </h2>
                     <p
                       className="text-xl pb-5 cursor-pointer text-black hover:text-red-600"
                       aria-label="Close modal"
-                      onClick={popup} 
+                      onClick={popup}
                     >
                       X
                     </p>
@@ -96,7 +100,9 @@ const dispatch = useDispatch()
 
                   {/* Room Type */}
                   <FormControl component="fieldset">
-                    <h3 className="text-lg font-semibold mb-2 text-black">Room Type</h3>
+                    <h3 className="text-lg font-semibold mb-2 text-black">
+                      Room Type
+                    </h3>
                     <RadioGroup
                       row
                       name="roomType"
@@ -128,7 +134,11 @@ const dispatch = useDispatch()
 
                   {/* Create Button */}
                   <div className="mt-6 flex justify-center sm:justify-end">
-                    <Button type="submit" variant="contained" className="rounded-lg px-6 py-2 font-semibold bg-blue-500 text-white hover:bg-blue-600">
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      className="rounded-lg px-6 py-2 font-semibold bg-blue-500 text-white hover:bg-blue-600"
+                    >
                       Create
                     </Button>
                   </div>

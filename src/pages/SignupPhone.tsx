@@ -11,8 +11,6 @@ import {
   signInWithPhoneNumber,
   PhoneAuthProvider,
   signInWithCredential,
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
 } from "firebase/auth";
 import { emailVerify } from "../services/UserAPI";
 import { useNavigate } from "react-router-dom";
