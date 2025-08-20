@@ -28,6 +28,9 @@ const HomePage = () => {
   useEffect(() => {
     socket.emit("get_data");
 
+
+
+
     socket.on("room_data", (data) => {
       setRoomData(data);
       setFilter(data);
@@ -37,6 +40,10 @@ const HomePage = () => {
       setRoomData(data);
       setFilter(data);
     });
+
+    // socket.on("roomDeleted");
+
+
 
     return () => {
       socket.off("room_data");
@@ -58,6 +65,14 @@ const HomePage = () => {
   //   console.log("Updated filter:", filter);
   // }, [filter]);
 
+  const deletRoom = (roomId:string) =>{
+      console.log(roomId);
+      
+    // socket.emit('deleteRoom',)
+
+
+  }
+
   const containerStyles = isDarkMode
     ? "bg-[#1b1818] text-white"
     : "bg-gray-200  00 text-gray-800";
@@ -72,9 +87,7 @@ const HomePage = () => {
 
   //------------------------ fetch popup data ----------------------
 
-  //  function deletRoom(){
-
-  //  }
+  
 
   const roomEnter = (roomId: any, roomType: any,passwordRoom:any) => {
     if (roomType == "Private") {
@@ -95,6 +108,9 @@ const HomePage = () => {
     setRoomPassword(false);
   };
 
+  const chat = () =>{
+     alert('chat is currently unavailable')
+  }
 
   return (
     <div>
@@ -129,6 +145,7 @@ const HomePage = () => {
             <button
               className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-300 hover:shadow-lg"
               aria-label="Open chat"
+              onClick={chat}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -168,18 +185,11 @@ const HomePage = () => {
               onClick={() => roomEnter(room.roomId, room.type,room?.password)}
               // onClick={()=>navigate(`/room/${room.roomId}`)}
             >
+            
               <h3 className="text-lg font-semibold mb-3 line-clamp-2">
                 {room.topic}
               </h3>
               <div className="flex flex-wrap gap-2 mb-4">
-                {/* {room.hosts.map((host:any, idx:any) => (
-                <div key={idx} className="flex items-center">
-                  <div
-                    className={`w-6 h-6 rounded-full ${host.color} ring-2 ring-gray-600 mr-2`}
-                  ></div>
-                  <span class   Name="text-sm font-medium">{host.name}</span>
-                </div>
-              ))} */}
               </div>
               <div className="flex items-center justify-between text-gray-400 w-full">
                 {/* Left side: participants */}
@@ -195,6 +205,7 @@ const HomePage = () => {
                   <span className="text-sm font-medium">
                     {room.participants.length} participants
                   </span>
+                  
                 </div>
 
                 {/* Right side: lock */}

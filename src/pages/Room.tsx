@@ -46,6 +46,9 @@ const Room = () => {
       return;
     }
 
+
+     
+
     // socket.on("removalCountdown", () => {
     //   setIsCountingDown(true);
     // });
@@ -53,7 +56,7 @@ const Room = () => {
     checkRoomExist(userId);
     joinChannel(userId);
 
-    const handleRoomDeleted = () => navigate("/home");
+    // const handleRoomDeleted = () => navigate("/home");
 
     const handleRoomClosed = () => {
       alert("Room has been closed by admin.");
@@ -61,8 +64,13 @@ const Room = () => {
     };
 
     const handleUsersData = (data: any[]) => setParticipants(data);
+    // const deleteRoom = () =>( navigate('/home'))
+    // socket.on('room-delete',()=>{
+    //   navigate('/home')
+    // })  
 
-    socket.on("roomDeleted", handleRoomDeleted);
+
+    // socket.on("roomDeleted", handleRoomDeleted);
     socket.on("room-closed", handleRoomClosed);
     socket.on("users-data", handleUsersData);
 
@@ -72,7 +80,7 @@ const Room = () => {
 
       // if (countdownRef.current) clearInterval(countdownRef.current);
 
-      socket.off("roomDeleted", handleRoomDeleted);
+      // socket.off("roomDeleted", handleRoomDeleted);
       socket.off("room-closed", handleRoomClosed);
       socket.off("users-data", handleUsersData);
     };
@@ -115,6 +123,12 @@ const Room = () => {
   const leaveChannelUser = async () => {
     const userId = getUserId();
     await leaveChannel(userId);
+
+    // if(participants.length == 1){
+    //   console.log("yessssssssssssssssssssssssssssssssssssssssssss");
+      
+    //     socket.emit('delete-room',roomId)
+    // }
     socket.emit("exit-participant", { roomId, userId });
     dispatch(roomOut());
     navigate("/home");
@@ -336,11 +350,17 @@ return (
 
           {/* Close/Leave button */}
           {isAdmin ? (
+            // <button
+            //   disabled={isClosing}
+            //   className="px-6 py-2.5 rounded-full bg-gray-800 hover:bg-black text-white shadow-lg font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 focus:ring-2 focus:ring-gray-500"
+            // >
+            //   🚪 Close Room
+            // </button>
             <button
-              disabled={isClosing}
-              className="px-6 py-2.5 rounded-full bg-gray-800 hover:bg-black text-white shadow-lg font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 focus:ring-2 focus:ring-gray-500"
+              onClick={leaveChannelUser}
+              className="px-6 py-2.5 rounded-full bg-gray-800 hover:bg-black text-white shadow-lg font-semibold transition focus:ring-2 focus:ring-gray-500"
             >
-              🚪 Close Room
+              🚪 Leave Room
             </button>
           ) : (
             <button

@@ -1,6 +1,6 @@
 import React from "react";
 import { useFormik } from "formik";
-import * as Yup from "yup"; // For validation
+import * as Yup from "yup";
 import TextField from "@mui/material/TextField";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -13,9 +13,11 @@ import { createRoom } from "../services/UserAPI";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { roomIn } from "../redux/RoomSlice";
-
+import { useTheme } from "../context/ThemeContext";
 const CreateRoomPopup = ({ popup }:any) => {
 
+
+  const { isDarkMode } = useTheme();
 
 const dispatch = useDispatch()
 
@@ -68,9 +70,9 @@ const dispatch = useDispatch()
                 <div className="px-6 pt-6 pb-8">
                   {/* Heading */}
                   <div className="flex justify-between items-center">
-                    <h2 className="text-2xl md:text-3xl font-semibold mb-6">Create a Room</h2>
+                    <h2 className={`text-2xl md:text-3xl font-semibold mb-6 text-black`}>Create a Room</h2>
                     <p
-                      className="text-xl pb-5 cursor-pointer hover:text-red-600"
+                      className="text-xl pb-5 cursor-pointer text-black hover:text-red-600"
                       aria-label="Close modal"
                       onClick={popup} 
                     >
@@ -94,7 +96,7 @@ const dispatch = useDispatch()
 
                   {/* Room Type */}
                   <FormControl component="fieldset">
-                    <h3 className="text-lg font-semibold mb-2">Room Type</h3>
+                    <h3 className="text-lg font-semibold mb-2 text-black">Room Type</h3>
                     <RadioGroup
                       row
                       name="roomType"
@@ -105,8 +107,8 @@ const dispatch = useDispatch()
                         value="Open"
                         control={<Radio />}
                         label={
-                          <span className="flex items-center">
-                            <GroupIcon className="mr-2" />
+                          <span className="flex items-center text-black">
+                            <GroupIcon className="mr-2 text-black" />
                             Open
                           </span>
                         }
@@ -115,8 +117,8 @@ const dispatch = useDispatch()
                         value="Private"
                         control={<Radio />}
                         label={
-                          <span className="flex items-center">
-                            <LockIcon className="mr-2" />
+                          <span className="flex items-center text-black">
+                            <LockIcon className="mr-2 text-black" />
                             Private
                           </span>
                         }
