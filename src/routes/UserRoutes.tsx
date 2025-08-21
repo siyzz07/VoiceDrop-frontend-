@@ -5,7 +5,6 @@ import LoginPage from "../pages/LoginPage";
 import SignupPage from "../pages/SignupPhone";
 import OtpPage from "../pages/OtpPage";
 import HomePage from "../pages/HomePage";
-// import SignupNamePasswordPage from '../pages/SignupNamePasswordPage'
 import Room from "../pages/Room";
 import PublicRoute from "./PublicRoute";
 import ProtectedRoute from "./ProtectedRoute";

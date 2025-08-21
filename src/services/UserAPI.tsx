@@ -1,11 +1,7 @@
 import API from "../config/AxiosConfig"
 
 
-// export  const phoneVerify=async(form:any):Promise<any>=>{
 
-
-//     // const response=await API.post('/verify',form)
-// }
 
 
 
