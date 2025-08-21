@@ -72,7 +72,7 @@ const LoginPage = () => {
           }`}
         >
           <h2 className="text-2xl font-bold text-center mb-4">
-            Welcome to Voice Drop
+            Welcome NOdsafdsaf to Voice Drop
           </h2>
           <p className="text-center text-sm mb-6">
             Login to access your account and enjoy seamless voice sharing and
