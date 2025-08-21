@@ -1,4 +1,4 @@
-import React from "react";
+
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import TextField from "@mui/material/TextField";
@@ -13,7 +13,6 @@ import { createRoom } from "../services/UserAPI";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { roomIn } from "../redux/RoomSlice";
-import { useTheme } from "../context/ThemeContext";
 const CreateRoomPopup = ({ popup }: any) => {
   const dispatch = useDispatch();
 

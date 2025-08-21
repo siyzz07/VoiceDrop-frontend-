@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 const RoomPublic = ({ children }: { children: React.ReactNode }) => {
   const inRoom = useSelector((state: any) => state.roomCheck.inRoom);

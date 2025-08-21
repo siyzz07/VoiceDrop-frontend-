@@ -56,13 +56,13 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   },
 }));
 
-const UserInfo = ({ user,userName, onNameClick }: any) => (
+const UserInfo = ({userName, onNameClick }: any) => (
   <div className="flex items-center space-x-3 relative">
-    <img
+    {/* <img
       src={user.profilePicture}
       alt={`${user.name}'s profile`}
       className="w-12 h-12 rounded-full border-2 border-blue-500 shadow-lg"
-    />
+    /> */}
     <span
       onClick={onNameClick}
       className="font-semibold text-lg cursor-pointer hover:underline"
@@ -76,7 +76,7 @@ const Navbar = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userName,setUserName]=useState<any>()
-  const [user,setUser]=useState<any>(false)
+  // const [user,setUser]=useState<any>(false)
 
   
 
@@ -109,7 +109,7 @@ const Navbar = () => {
       <div className="flex items-center space-x-4 relative">
 
       {userName &&
-        <UserInfo user={user} userName={userName} onNameClick={handleNameClick} />
+        <UserInfo userName={userName} onNameClick={handleNameClick} />
       }
 
         {menuOpen && (

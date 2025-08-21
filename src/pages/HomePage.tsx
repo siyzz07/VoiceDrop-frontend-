@@ -57,17 +57,8 @@ const HomePage = () => {
     setFilter(result);
   };
 
-  // useEffect(() => {
-  //   console.log("Updated filter:", filter);
-  // }, [filter]);
+ 
 
-  const deletRoom = (roomId:string) =>{
-      console.log(roomId);
-      
-    // socket.emit('deleteRoom',)
-
-
-  }
 
   const containerStyles = isDarkMode
     ? "bg-[#1b1818] text-white"
