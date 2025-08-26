@@ -1,17 +1,12 @@
-
-import { BrowserRouter,Route,Routes } from 'react-router-dom'
-import UserRoutes from './routes/UserRoutes'
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import UserRoutes from "./routes/UserRoutes";
 
 const App = () => {
   return (
     <BrowserRouter>
-    
-    <Routes>
+      <UserRoutes />
+    </BrowserRouter>
+  );
+};
 
-      <Route path='/*' element={<UserRoutes/>}/>
-    </Routes>
-     </BrowserRouter>
-  )
-}
-
-export default App
+export default App;
