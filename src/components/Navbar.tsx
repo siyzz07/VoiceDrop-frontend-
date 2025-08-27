@@ -76,9 +76,13 @@ const Navbar = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userName,setUserName]=useState<any>()
+  const [tocken ,setFindToken] = useState(false)
   // const [user,setUser]=useState<any>(false)
 
-  
+  let val = localStorage.getItem('token')
+  if(val){
+    setFindToken(true)
+  }
 
   const handleLogout = () => {
     console.log("User logged out");
@@ -112,7 +116,7 @@ const Navbar = () => {
         <UserInfo userName={userName} onNameClick={handleNameClick} />
       }
 
-        {menuOpen && (
+        {menuOpen && tocken && (
           <ClickAwayListener onClickAway={handleClickAway}>
             <Paper className="absolute top-16 right-0 z-50 shadow-lg">
               <MenuList>
