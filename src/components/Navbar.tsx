@@ -8,6 +8,9 @@ import Paper from "@mui/material/Paper";
 import MenuList from "@mui/material/MenuList";
 import MenuItem from "@mui/material/MenuItem";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { useDispatch } from "react-redux";
+import { logout } from "../redux/Slice";
+import { useNavigate } from "react-router-dom";
 
 // Custom styled Material-UI Switch
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
@@ -76,16 +79,19 @@ const Navbar = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const [userName,setUserName]=useState<any>()
-  const [tocken ,setFindToken] = useState(false)
   // const [user,setUser]=useState<any>(false)
-
-  let val = localStorage.getItem('token')
-  if(val){
-    setFindToken(true)
-  }
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const handleLogout = () => {
-    console.log("User logged out");
+    
+    dispatch(logout())
+    localStorage.removeItem('token')
+    localStorage.removeItem('userName')
+    localStorage.removeItem("roomIn")
+    localStorage.removeItem("roomId");
+    navigate('/')
+
   };
 
   const handleNameClick = () => {
@@ -116,7 +122,7 @@ const Navbar = () => {
         <UserInfo userName={userName} onNameClick={handleNameClick} />
       }
 
-        {menuOpen && tocken && (
+        {menuOpen &&  (
           <ClickAwayListener onClickAway={handleClickAway}>
             <Paper className="absolute top-16 right-0 z-50 shadow-lg">
               <MenuList>
