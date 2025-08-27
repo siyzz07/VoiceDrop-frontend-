@@ -164,6 +164,8 @@ const SignupPage: React.FC = () => {
                 <div className="mb-4">
                   <label className="block text-sm mb-2">
                     Choose Authentication Method
+                    
+
                   </label>
                   <div className="flex gap-4">
                     <label className="flex items-center">
@@ -288,7 +290,7 @@ const SignupPage: React.FC = () => {
           <div className="mt-4 text-center">
             <p className="text-sm">
               Already have an account?{" "}
-              <span className="text-blue-600 font-semibold cursor-pointer hover:underline">
+              <span onClick={()=>navigate('/login')} className="text-blue-600 font-semibold cursor-pointer hover:underline">
                 Login
               </span>
             </p>
