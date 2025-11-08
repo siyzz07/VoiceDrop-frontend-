@@ -111,7 +111,7 @@ const Navbar = () => {
   return (
     <nav
       className={`w-full px-4 py-2 flex justify-between items-center ${
-        isDarkMode ? "bg-[#1b1818] text-white" : "bg-gray-200 text-black"
+        isDarkMode ? " from-gray-900 via-gray-800 to-black text-white" : "bg-gray-200 text-black"
       }`}
     >
       <h1 className="text-2xl font-bold">Voice Drop</h1>
