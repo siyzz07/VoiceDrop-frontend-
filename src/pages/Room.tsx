@@ -31,7 +31,6 @@ const Room = () => {
   const [topic, setTopic] = useState("Connecting...");
   const [participants, setParticipants] = useState<any[]>([]);
   const [isMicOn, setIsMicOn] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [roomKey, setRoomKey] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -116,7 +115,7 @@ const Room = () => {
 
       setTopic(room.topic);
       if (room.password) setRoomKey(room.password);
-      if (room.owner === userId) setIsAdmin(true);
+      // if (room.owner === userId) setIsAdmin(true);
 
       socket.emit("join-room", { roomId, userId });
     } catch {
