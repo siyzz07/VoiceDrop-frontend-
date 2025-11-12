@@ -74,7 +74,7 @@ const OtpPage = () => {
       if (response.message === "success") {
         localStorage.setItem("signUp", "success");
         setSignUp("success");
-        toast.success("OTP verified successfully 🎉");
+        toast.success("OTP verified successfully ");
       } else {
         toast.error(response.message || "Invalid OTP");
       }

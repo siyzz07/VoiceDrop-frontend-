@@ -7,6 +7,7 @@ import { emailVerify } from "../services/UserAPI";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
+import { AxiosError } from "axios";
 
 // ✅ Validation Schema
 const SignupSchema = Yup.object().shape({
@@ -31,11 +32,14 @@ const SignupPage = () => {
       const response = await emailVerify(values);
       if (response.email) {
         localStorage.setItem("userEmail", response.email);
-        toast.success("Verification email sent 📩");
+        toast.success(response?.message);
         navigate("/otp");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if(error instanceof AxiosError)
+      {
       toast.error(error?.response?.data?.message || "Something went wrong");
+      }
     }
   };
 
@@ -113,7 +117,7 @@ const SignupPage = () => {
                     isSubmitting ? "opacity-50 cursor-not-allowed" : ""
                   }`}
                 >
-                  {isSubmitting ? "Sending..." : "Send Verification Link →"}
+                  {isSubmitting ? "Sending..." : "Send"}
                 </motion.button>
               </Form>
             )}
