@@ -8,14 +8,24 @@ import API from "../config/AxiosConfig"
 // ---------------------------------------email varify
 export  const emailVerify=async(form:any):Promise<any>=>{
     const response=await API.post('/emailverify',form)
-    return response.data
+    console.log('reached');
+    
+    return response
 }
 
+
+
+//-----------------------------------------resend otp
+export const resendOtp = async (email:string) =>{
+
+    const response = await API.post('/otp-resend',{email})
+    return response
+}
 //-----------------------------------------check user otp
-export const checkOtp=async(email:any,otp:any):Promise<any>=>{
+export const checkOtp=async(email:string,otp:any):Promise<any>=>{
      const values={email,otp}    
         const response=await API.post('/checkOtp',values)
-        return response.data
+        return response
 }
 
 //---------------------------------------------------- register user

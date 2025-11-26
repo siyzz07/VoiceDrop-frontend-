@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 
-// ✅ Validation Schema
+// Validation Schema
 const SignupSchema = Yup.object().shape({
   email: Yup.string()
     .email("Invalid email address")
@@ -20,22 +20,30 @@ const SignupPage = () => {
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
 
-  // Cleanup localStorage
+
   useEffect(() => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("signUp");
   }, []);
 
-  // ✅ Handle email signup
+  //  Handle email signup
   const handleSignup = async (values: { email: string }) => {
     try {
+
+
       const response = await emailVerify(values);
-      if (response.email) {
-        localStorage.setItem("userEmail", response.email);
-        toast.success(response?.message);
+
+        console.log(response,'---');
+        
+
+      if (response.data.email) {
+        localStorage.setItem("userEmail", response.data.email);
+        toast.success(response?.data.message);
         navigate("/otp");
       }
     } catch (error: unknown) {
+      console.log(error);
+      
       if(error instanceof AxiosError)
       {
       toast.error(error?.response?.data?.message || "Something went wrong");

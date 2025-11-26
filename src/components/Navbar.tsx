@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { styled } from "@mui/material/styles";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -59,7 +59,7 @@ const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   },
 }));
 
-const UserInfo = ({userName, onNameClick }: any) => (
+const UserInfo = ({ userName, onNameClick }: any) => (
   <div className="flex items-center space-x-3 relative">
     {/* <img
       src={user.profilePicture}
@@ -78,20 +78,18 @@ const UserInfo = ({userName, onNameClick }: any) => (
 const Navbar = () => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [userName,setUserName]=useState<any>()
+  const [userName, setUserName] = useState<any>();
   // const [user,setUser]=useState<any>(false)
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    
-    dispatch(logout())
-    localStorage.removeItem('token')
-    localStorage.removeItem('userName')
-    localStorage.removeItem("roomIn")
+    dispatch(logout());
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("roomIn");
     localStorage.removeItem("roomId");
-    navigate('/')
-
+    navigate("/");
   };
 
   const handleNameClick = () => {
@@ -102,27 +100,26 @@ const Navbar = () => {
     setMenuOpen(false);
   };
 
-
-  useEffect(()=>{
-    
-    let userName=localStorage.getItem("userName")
-    setUserName(userName)
-  },[])
+  useEffect(() => {
+    let userName = localStorage.getItem("userName");
+    setUserName(userName);
+  }, []);
   return (
     <nav
       className={`w-full px-4 py-2 flex justify-between items-center ${
-        isDarkMode ? " from-gray-900 via-gray-800 to-black text-white" : "bg-gray-200 text-black"
+        isDarkMode
+          ? " from-gray-900 via-gray-800 to-black text-white"
+          : "bg-gradient-to-br from-blue-50  text-gray-900"
       }`}
     >
       <h1 className="text-2xl font-bold">Voice Drop</h1>
 
       <div className="flex items-center space-x-4 relative">
+        {userName && (
+          <UserInfo userName={userName} onNameClick={handleNameClick} />
+        )}
 
-      {userName &&
-        <UserInfo userName={userName} onNameClick={handleNameClick} />
-      }
-
-        {menuOpen &&  (
+        {menuOpen && (
           <ClickAwayListener onClickAway={handleClickAway}>
             <Paper className="absolute top-16 right-0 z-50 shadow-lg">
               <MenuList>
@@ -132,9 +129,9 @@ const Navbar = () => {
                 <MenuItem
                   onClick={handleLogout}
                   sx={{
-                    color: "red", 
-                    display: "flex", 
-                    alignItems: "center", 
+                    color: "red",
+                    display: "flex",
+                    alignItems: "center",
                     gap: 1,
                   }}
                 >
@@ -163,7 +160,6 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
 
 //  <svg
 //               className="w-6 h-6"

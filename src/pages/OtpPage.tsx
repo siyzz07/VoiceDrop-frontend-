@@ -3,13 +3,13 @@ import Navbar from "../components/Navbar";
 import { useTheme } from "../context/ThemeContext";
 import { Formik, Field, Form, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { checkOtp } from "../services/UserAPI";
+import { checkOtp, resendOtp } from "../services/UserAPI";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import SetPassword from "../components/SetPassword";
 import { motion } from "framer-motion";
 
-// ✅ Validation schema for OTP
+//Validation schema for OTP
 const otpValidationSchema = Yup.object().shape({
   otp: Yup.string()
     .required("OTP is required")
@@ -18,14 +18,14 @@ const otpValidationSchema = Yup.object().shape({
 
 const OtpPage = () => {
   const { isDarkMode } = useTheme();
-  const [resendTimer, setResendTimer] = useState(30);
+  const [resendTimer, setResendTimer] = useState(90);
   const [canResend, setCanResend] = useState(false);
   const [signUp, setSignUp] = useState("fail");
   const navigate = useNavigate();
 
-  // 🔹 Load localStorage data and validate
+  const email = localStorage.getItem("userEmail");
+
   useEffect(() => {
-    const email = localStorage.getItem("userEmail");
     const storedSignUp = localStorage.getItem("signUp");
 
     if (!email) {
@@ -38,7 +38,6 @@ const OtpPage = () => {
     }
   }, [navigate]);
 
-  // 🔹 Countdown for resend button
   useEffect(() => {
     if (resendTimer > 0) {
       const timerId = setInterval(() => {
@@ -50,17 +49,28 @@ const OtpPage = () => {
     }
   }, [resendTimer]);
 
-  // 🔹 Resend OTP handler
+  
   const handleResendOtp = async () => {
-    if (canResend) {
-      toast.info("OTP resent successfully 🔁");
-      setResendTimer(30);
-      setCanResend(false);
-      // TODO: backend resend API
-    }
-  };
+    try{
+      if (canResend) {
+        if(email){
+          let response = await resendOtp(email)
+          if(response?.data.message){
+            toast.success(response.data.message)
+            localStorage.setItem('userEmail',response.data.email)
+          }
 
-  // 🔹 OTP submit handler
+         setResendTimer(90);
+         setCanResend(false);
+
+        }
+      }
+    }catch(error:unknown){
+      toast.error('error to send OTP please try again later')
+    }
+  }
+
+  
   const handleOtpSubmit = async (values: { otp: string }) => {
     try {
       const email = localStorage.getItem("userEmail");
@@ -71,22 +81,24 @@ const OtpPage = () => {
       }
 
       const response = await checkOtp(email, values.otp);
-      if (response.message === "success") {
+
+      console.log('0-0-0-0-0-',response);
+      
+
+      if (response.data.success) {
         localStorage.setItem("signUp", "success");
         setSignUp("success");
-        toast.success("OTP verified successfully ");
+        toast.success(response.data.message);
       } else {
-        toast.error(response.message || "Invalid OTP");
+        toast.error(response.data.message || "Invalid OTP");
       }
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
 
-  // ✅ Show SetPassword component after success
   if (signUp === "success") return <SetPassword />;
 
-  // 🎨 Main OTP UI
   return (
     <div
       className={`min-h-screen flex flex-col ${
