@@ -31,7 +31,7 @@ const Room: React.FC = () => {
 
   const [topic, setTopic] = useState("Connecting...");
   const [participants, setParticipants] = useState<any[]>([]);
-  const [roomType, setRoomType] = useState<string>(""); // ← NEW
+  const [roomType, setRoomType] = useState<string>(""); 
   const [isMicOn, setIsMicOn] = useState(true);
   const [roomKey, setRoomKey] = useState("");
   const [copied, setCopied] = useState(false);
@@ -52,7 +52,8 @@ const Room: React.FC = () => {
     checkRoomExist(userId).then(() => {
       joinChannel(userId).finally(() => setIsJoining(false));
     });
-
+    // check 
+   isJoining
     socket.on("room-closed", () => {
       alert("Room closed by admin");
       leaveChannel().finally(() => navigate("/home"));

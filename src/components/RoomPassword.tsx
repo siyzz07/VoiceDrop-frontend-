@@ -32,7 +32,7 @@ const RoomPassword = ({ popup, password, roomId }: any) => {
     },
   });
 
-  // 🎨 THEME STYLES
+
   const modalBg = isDarkMode
     ? "bg-gradient-to-br from-gray-800 via-gray-700 to-gray-950 text-white border border-gray-700"
     : "bg-white text-black border border-gray-200";
