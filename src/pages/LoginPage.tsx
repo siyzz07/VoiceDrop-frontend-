@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useTheme } from "../context/ThemeContext";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -10,6 +10,8 @@ import { useDispatch } from "react-redux";
 import { loginSuccess } from "../redux/Slice";
 import socket from "../config/Socket";
 import { motion } from "framer-motion";
+import { AxiosError } from "axios";
+import { Eye, EyeOff } from "lucide-react";
 
 // ✅ Validation Schema
 const LoginSchema = Yup.object().shape({
@@ -21,28 +23,26 @@ const LoginPage = () => {
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [showPassword, setShowPassword] = useState<boolean>(false)
 
-  const handleLogin = async (values: any) => {
-    try {
-      const response = await loginUser(values);
-      if (response?.token) {
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("userName", response.userName);
-        dispatch(loginSuccess(response.token));
-        socket.connect();
+ const handleLogin = async (values: any) => {
+  try {
+    const response = await loginUser(values);
+    if (response?.data?.token) {
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userName", response.data.userName);
+      dispatch(loginSuccess(response.data.token));
+      socket.connect();
 
-        socket.on("connect", () => {
-          console.log("Socket connected:", socket.id);
-        });
-
-        toast.success("Login successful 🎉");
-        navigate("/home");
-      }
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Login failed");
+      toast.success(response.message);
+      navigate("/home");
     }
-  };
-
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      toast.error(error.response?.data.message || "Login failed");
+    }
+  }
+};
   useEffect(() => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("signUp");
@@ -106,23 +106,38 @@ const LoginPage = () => {
                   <ErrorMessage name="email" component="div" className="text-red-500 text-xs mt-1" />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1" htmlFor="password">
-                    Password
-                  </label>
-                  <Field
-                    type="password"
-                    id="password"
-                    name="password"
-                    className={`w-full px-4 py-2.5 rounded-lg border focus:outline-none transition-all ${
-                      isDarkMode
-                        ? "bg-[#1e1e1e] border-gray-700 focus:ring-2 focus:ring-blue-500"
-                        : "bg-gray-50 border-gray-300 focus:ring-2 focus:ring-blue-500"
-                    }`}
-                    placeholder="Enter your password"
-                  />
-                  <ErrorMessage name="password" component="div" className="text-red-500 text-xs mt-1" />
-                </div>
+                <div className="relative">
+      <label className="block text-sm font-medium mb-1" htmlFor="password">
+        Password
+      </label>
+
+      <Field
+        type={showPassword ? "text" : "password"}
+        id="password"
+        name="password"
+        className={`w-full px-4 py-2.5 pr-12 rounded-lg border focus:outline-none transition-all ${
+          isDarkMode
+            ? "bg-[#1e1e1e] border-gray-700 focus:ring-2 focus:ring-blue-500"
+            : "bg-gray-50 border-gray-300 focus:ring-2 focus:ring-blue-500"
+        }`}
+        placeholder="Enter your password"
+      />
+
+      {/* Eye Icon */}
+      <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+        className="absolute right-3 top-[38px] text-gray-500 hover:text-gray-700"
+      >
+        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+      </button>
+
+      <ErrorMessage
+        name="password"
+        component="div"
+        className="text-red-500 text-xs mt-1"
+      />
+    </div>
 
                 <motion.button
                   whileHover={{ scale: 1.02 }}

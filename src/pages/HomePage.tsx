@@ -21,6 +21,7 @@ const HomePage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // --------------------------- SOCKET HANDLERS ---------------------------
   useEffect(() => {
     socket.emit("get_data");
 
@@ -40,6 +41,7 @@ const HomePage = () => {
     };
   }, []);
 
+  // --------------------------- SEARCH HANDLER ---------------------------
   const searchRooms = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase();
     const result = roomData.filter((room) =>
@@ -48,6 +50,7 @@ const HomePage = () => {
     setFilteredRooms(result);
   };
 
+  // --------------------------- ENTER ROOM ---------------------------
   const roomEnter = (id: string, type: string, roomPass?: string) => {
     if (type === "Private") {
       setPassword(roomPass || "");
@@ -59,20 +62,24 @@ const HomePage = () => {
     }
   };
 
+  // --------------------------- CLEAN COLOR TONES ---------------------------
+
   const containerStyles = isDarkMode
-    ? "bg-gradient-to-br from-[#181818] via-[#1f1f1f] to-[#0e0e0e] text-white"
-    : "bg-gradient-to-br from-blue-50 via-white to-blue-100 text-gray-900";
+    ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 text-white"
+    : "bg-[#F7F9FC] text-[#111827]";
 
   const cardStyles = isDarkMode
-    ? "bg-[#2b2b2b]/70 hover:bg-[#3b3b3b] text-gray-100 border-gray-700"
-    : "bg-white/80 hover:bg-gray-50 text-gray-900 border-gray-200";
+    ? "bg-gradient-to-br from-gray-800 via-gray-600 to-gray-800 border border-[#2a2a2a] hover:bg-[#252525] text-[#ededed]"
+    : "bg-white border border-[#e5e7eb] hover:bg-[#f3f4f6] text-[#111827]";
 
   const inputStyles = isDarkMode
-    ? "bg-[#2b2b2b] border-gray-700 text-gray-200 placeholder-gray-500 focus:ring-blue-500"
-    : "bg-white border-gray-300 text-gray-800 placeholder-gray-400 focus:ring-blue-400";
+    ? "bg-[#1a1a1a] border border-[#2a2a2a] text-[#e5e5e5] placeholder-[#777] focus:ring-blue-500"
+    : "bg-white border border-[#d1d5db] text-[#111827] placeholder-[#9ca3af] focus:ring-blue-500";
 
+  // --------------------------- PAGE UI ---------------------------
   return (
     <div className={`${containerStyles} min-h-screen`}>
+      {/* Popups */}
       {createRoom && <CreateRoomPopup popup={() => setCreateRoom(false)} />}
       {roomPassword && (
         <RoomPassword
@@ -84,8 +91,10 @@ const HomePage = () => {
 
       <Navbar />
 
-      {/* 🔹 Header */}
-      <header className="flex flex-col sm:flex-row items-center justify-between px-6 lg:px-10 py-6 border-b border-gray-600/30">
+      {/* ---------------- HEADER ---------------- */}
+      <header className="flex flex-col sm:flex-row items-center justify-between px-6 lg:px-10 py-6 border-b border-gray-600/20">
+
+        {/* Search Bar */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -98,7 +107,7 @@ const HomePage = () => {
             className={`w-full p-3 pl-10 rounded-lg border shadow-sm focus:outline-none focus:ring-2 transition-all duration-300 ${inputStyles}`}
           />
           <svg
-            className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -106,7 +115,7 @@ const HomePage = () => {
           </svg>
         </motion.div>
 
-        {/* Action Buttons */}
+        {/* Buttons */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -114,13 +123,14 @@ const HomePage = () => {
         >
           <button
             onClick={() => alert("Chat is currently unavailable")}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-300"
+            className="flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-4 py-2 rounded-lg shadow-md transition-all duration-300"
           >
             💬 Chat
           </button>
+
           <button
             onClick={() => setCreateRoom(true)}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-300"
+            className="flex items-center gap-2 bg-[#22C55E] hover:bg-[#16A34A] text-white px-4 py-2 rounded-lg shadow-md transition-all duration-300"
           >
             <MdRecordVoiceOver className="text-xl" />
             Start a Room
@@ -128,7 +138,7 @@ const HomePage = () => {
         </motion.div>
       </header>
 
-      {/* 🔹 Main Grid */}
+      {/* ---------------- ROOMS GRID ---------------- */}
       <main className="px-6 lg:px-10 py-8">
         <AnimatePresence>
           {filteredRooms.length > 0 ? (
@@ -144,7 +154,7 @@ const HomePage = () => {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ duration: 0.2 }}
-                  className={`p-5 border rounded-2xl shadow-lg cursor-pointer transition-all duration-300 ${cardStyles}`}
+                  className={`p-5 rounded-2xl shadow-md cursor-pointer transition-all duration-300 border ${cardStyles}`}
                   onClick={() =>
                     roomEnter(room.roomId, room.type, room?.password)
                   }
@@ -152,6 +162,7 @@ const HomePage = () => {
                   <h3 className="text-lg font-semibold mb-2 line-clamp-2">
                     {room.topic}
                   </h3>
+
                   <p className="text-sm text-gray-400 mb-4 line-clamp-1">
                     {room.description || "No description provided."}
                   </p>
@@ -190,7 +201,7 @@ const HomePage = () => {
               ))}
             </motion.div>
           ) : (
-            // 🌀 Empty State
+            // ---------------- EMPTY STATE ----------------
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -205,7 +216,7 @@ const HomePage = () => {
               </p>
               <button
                 onClick={() => setCreateRoom(true)}
-                className="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg font-medium shadow-md transition-all"
+                className="bg-[#22C55E] hover:bg-[#16A34A] text-white px-6 py-2 rounded-lg font-medium shadow-md transition-all"
               >
                 Start a Room
               </button>

@@ -39,8 +39,8 @@ export const saveUser=async(values:any,email:any):Promise<any>=>{
 //------------------------------------------- login 
 export const loginUser=async(values:object):Promise<any>=>{
  
-    const response=await API.post('/loginUser',values)
-    return response.data
+    const response=await API.post('/login',values)
+    return response
 }
 
 
@@ -58,6 +58,12 @@ export const createRoom=async(values:object,headers:any):Promise<any>=>{
 //------------------------------------------------------ check room exitst
 export const roomExist= async (roomId:any):Promise<any>=>{
     const response=await API.get(`checkRoom/${roomId}`)
+    return response
+}
+
+//------------------------------------------------------ logout
+export const logoutUser = async () =>{
+    const response = await API.post('/logout')
     return response
 }
 

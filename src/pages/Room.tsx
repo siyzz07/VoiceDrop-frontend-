@@ -17,26 +17,30 @@ import {
   FaCheck,
   FaLock,
   FaUserAlt,
+  FaPhoneSlash,
 } from "react-icons/fa";
 
-const appId = import.meta.env.VITE_AGORA_APP_ID;
+const appId = import.meta.env.VITE_AGORA_APP_ID as string;
 const token = null;
 
-const Room = () => {
+const Room: React.FC = () => {
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
-  const { roomId }: any = useParams<{ roomId: string }>();
+  const { roomId } = useParams<{ roomId: string }>();
   const dispatch = useDispatch();
 
   const [topic, setTopic] = useState("Connecting...");
   const [participants, setParticipants] = useState<any[]>([]);
+  const [roomType, setRoomType] = useState<string>(""); // ← NEW
   const [isMicOn, setIsMicOn] = useState(true);
-  const [roomKey, setRoomKey] = useState('');
+  const [roomKey, setRoomKey] = useState("");
   const [copied, setCopied] = useState(false);
+  const [isJoining, setIsJoining] = useState(false);
 
   const clientRef = useRef<IAgoraRTCClient | null>(null);
   const localAudioTrackRef = useRef<any>(null);
 
+  // ========== EFFECT ==========
   useEffect(() => {
     const userId = getUserId();
     if (!userId) {
@@ -44,53 +48,73 @@ const Room = () => {
       return;
     }
 
-    checkRoomExist(userId);
-    joinChannel(userId);
+    setIsJoining(true);
+    checkRoomExist(userId).then(() => {
+      joinChannel(userId).finally(() => setIsJoining(false));
+    });
 
     socket.on("room-closed", () => {
       alert("Room closed by admin");
-      leaveChannel();
-      navigate("/home");
+      leaveChannel().finally(() => navigate("/home"));
     });
 
-    socket.on("users-data", (data) => setParticipants(data));
+    socket.on("users-data", (data: any[]) => setParticipants(data));
 
     return () => {
-      leaveChannel();
-      socket.emit("exit-participant", { roomId, userId });
       socket.off("room-closed");
       socket.off("users-data");
+      leaveChannel().catch(() => {});
+      try {
+        const uid = getUserId();
+        socket.emit("exit-participant", { roomId, userId: uid });
+      } catch {}
     };
-  }, []);
+  }, [roomId]);
 
-  // 🔹 Join voice channel
+  // ========== JOIN CHANNEL ==========
   const joinChannel = async (userId: string) => {
-    const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-    clientRef.current = client;
+    try {
+      const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+      clientRef.current = client;
 
-    client.on("user-published", async (user, mediaType) => {
-      await client.subscribe(user, mediaType);
-      if (mediaType === "audio") {
-        const remoteTrack = user.audioTrack as IRemoteAudioTrack;
-        remoteTrack.play();
-      }
-    });
+      client.on("user-published", async (user, mediaType) => {
+        await client.subscribe(user, mediaType);
+        if (mediaType === "audio") {
+          const remoteTrack = user.audioTrack as IRemoteAudioTrack;
+          try {
+            remoteTrack.play();
+          } catch {}
+        }
+      });
 
-    await client.join(appId, roomId, token, userId);
-    const localTrack = await AgoraRTC.createMicrophoneAudioTrack();
-    localAudioTrackRef.current = localTrack;
-    await client.publish([localTrack]);
+      client.on("user-unpublished", () => {});
+
+      await client.join(appId, roomId as string, token, userId);
+
+      const localTrack = await AgoraRTC.createMicrophoneAudioTrack();
+      localAudioTrackRef.current = localTrack;
+      await client.publish([localTrack]);
+    } catch (err) {
+      console.error("Agora join error:", err);
+    }
   };
 
+  // ========== TOGGLE MIC ==========
   const toggleMic = () => {
     if (!localAudioTrackRef.current) return;
-    localAudioTrackRef.current.setEnabled(!isMicOn);
-    setIsMicOn(!isMicOn);
+    const newState = !isMicOn;
+    localAudioTrackRef.current.setEnabled(newState);
+    setIsMicOn(newState);
+
+    const uid = getUserId();
+    socket.emit("toggle-mic", { roomId, userId: uid, micOn: newState });
   };
 
+  // ========== LEAVE CHANNEL ==========
   const leaveChannelUser = async () => {
     const userId = getUserId();
     await leaveChannel();
+
     socket.emit("exit-participant", { roomId, userId });
     dispatch(roomOut());
     navigate("/home");
@@ -98,24 +122,29 @@ const Room = () => {
 
   const leaveChannel = async () => {
     if (localAudioTrackRef.current) {
-      localAudioTrackRef.current.stop();
-      localAudioTrackRef.current.close();
+      try {
+        localAudioTrackRef.current.stop();
+        localAudioTrackRef.current.close();
+      } catch {}
     }
     if (clientRef.current) {
       await clientRef.current.leave();
       clientRef.current.removeAllListeners();
+      clientRef.current = null;
     }
   };
 
+  // ========== CHECK ROOM ==========
   const checkRoomExist = async (userId: string) => {
     try {
-      const res = await roomExist(roomId);
+      const res = await roomExist(roomId as string);
       const room = res?.data?.room;
+
       if (!room) return navigate("/home");
 
       setTopic(room.topic);
+      setRoomType(room.type); // ← SET ROOM TYPE
       if (room.password) setRoomKey(room.password);
-      // if (room.owner === userId) setIsAdmin(true);
 
       socket.emit("join-room", { roomId, userId });
     } catch {
@@ -123,6 +152,7 @@ const Room = () => {
     }
   };
 
+  // ========== USER ID ==========
   const getUserId = () => {
     try {
       const token = localStorage.getItem("token");
@@ -130,135 +160,150 @@ const Room = () => {
         const decoded: any = jwtDecode(token);
         return decoded.userId;
       }
-    } catch {
-      return Math.floor(Math.random() * 10000);
-    }
+    } catch {}
+    return Math.floor(Math.random() * 10000);
   };
 
+  // ========== COPY KEY ==========
   const copyKey = async () => {
-    await navigator.clipboard.writeText(roomKey );
+    if (!roomKey) return;
+    await navigator.clipboard.writeText(roomKey);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   };
 
-  // 🌈 Dynamic styles
-  const bg = isDarkMode
-    ? "bg-gradient-to-br from-[#0f0f0f] via-[#1a1a1a] to-[#0d0d0d]"
-    : "bg-gradient-to-br from-blue-50 via-white to-blue-100";
+  // ========== THEMES ==========
+  const containerBg = isDarkMode
+    ? "bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white"
+    : "bg-gradient-to-br from-blue-50 via-white to-blue-100 text-gray-900";
 
-  const card = isDarkMode
-    ? "bg-[#1f1f1f]/80 border border-gray-700 hover:border-blue-500 text-gray-100 shadow-lg"
-    : "bg-white/80 border border-gray-200 hover:border-blue-400 text-gray-900 shadow-md";
+  const topCardBg = isDarkMode
+    ? "bg-white/10 backdrop-blur-md border border-white/10"
+    : "bg-white shadow border border-gray-200";
 
+  const participantCard = isDarkMode
+    ? "bg-white/10 backdrop-blur-md border border-white/10"
+    : "bg-white shadow border border-gray-100";
+
+  // ========== RENDER ==========
   return (
-    <div className={`${bg} min-h-screen flex flex-col`}>
+    <div className={`${containerBg} min-h-screen flex flex-col`}>
       <Navbar />
 
-      {/* Title + Key */}
-      <section className="text-center mt-12">
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-3xl sm:text-4xl font-bold tracking-tight mb-4"
-        >
-          🎧 {topic}
-        </motion.h1>
-      { roomKey.length &&
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-          className="inline-flex items-center gap-2 bg-gray-800/60 text-white px-4 py-2 rounded-xl border border-gray-600 backdrop-blur-md shadow-md"
-        >
-          <FaLock className="text-gray-400" />
-          <input
-            type="text"
-            disabled
-            value={roomKey || "—"}
-            className="bg-transparent outline-none w-24 text-sm text-gray-200 text-center"
-          />
-          <button
-            onClick={copyKey}
-            className="flex items-center text-xs bg-blue-600 hover:bg-blue-500 text-white rounded-md px-3 py-1 transition"
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 flex-1">
+        {/* Header */}
+        <section className="pt-10">
+          <div
+            className={`mx-auto max-w-4xl ${topCardBg} rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-4`}
           >
-            {copied ? <FaCheck className="mr-1" /> : <FaRegCopy className="mr-1" />}
-            {copied ? "Copied" : "Copy"}
-          </button>
-        </motion.div>
-        }
-      </section>
-      {/* Participants */}
-      <section className="flex-1 container mx-auto px-6 mt-12">
-        <h2 className="text-lg font-semibold mb-6 text-center sm:text-left">
-          👥 Participants ({participants.length})
-        </h2>
+            <div className="flex-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                🎧 {topic}
+              </h1>
 
-        <AnimatePresence>
-          {participants.length > 0 ? (
+              <p className="mt-1 text-sm opacity-70">
+                Live voice room — join the conversation
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* ✔ SHOW ONLY IF PRIVATE */}
+              {roomType === "Private" && roomKey && (
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur-md">
+                  <FaLock className="opacity-80" />
+                  <span className="text-sm font-medium">{roomKey}</span>
+                  <button
+                    aria-label="Copy room key"
+                    onClick={copyKey}
+                    className="ml-2 inline-flex items-center gap-2 px-2 py-1 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-xs"
+                  >
+                    {copied ? <FaCheck /> : <FaRegCopy />}
+                    {copied ? "Copied" : "Copy"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Participants */}
+        <section className="mt-10 pb-32">
+          <AnimatePresence>
             <motion.div
               layout
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 pb-10"
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6"
             >
-              {participants.map((p: any, index: number) => (
+              {participants.map((p: any, idx: number) => (
                 <motion.div
-                  key={index}
                   layout
-                  whileHover={{ scale: 1.07 }}
-                  className={`${card} p-5 rounded-2xl flex flex-col items-center transition-all relative`}
+                  key={idx}
+                  whileHover={{ scale: 1.05 }}
+                  className={`${participantCard} p-4 rounded-2xl flex flex-col items-center gap-3`}
                 >
-                  {/* Glowing ring if mic is on */}
-                  <div
-                    className={`relative w-20 h-20 flex items-center justify-center rounded-full ${
-                      p.speaking
-                        ? "animate-pulse bg-gradient-to-br from-blue-400 to-purple-500"
-                        : "bg-gradient-to-br from-gray-600 to-gray-800"
-                    }`}
-                  >
-                    <FaUserAlt className="text-white text-2xl" />
+                  <div className="relative">
+                    <div
+                      className={`w-20 h-20 rounded-full flex items-center justify-center
+                      ${
+                        p.speaking
+                          ? "ring-4 ring-blue-500/40 shadow-xl"
+                          : "bg-gray-600"
+                      }`}
+                    >
+                      <FaUserAlt className="text-white text-2xl" />
+                    </div>
+
+                    {/* <div
+                      className={`absolute -right-2 -bottom-2 p-1 rounded-full ${
+                        p.micOn ? "bg-green-500" : "bg-red-500"
+                      }`}
+                    >
+                      {p.micOn ? (
+                        <FaMicrophone className="text-white text-xs" />
+                      ) : (
+                        <FaMicrophoneSlash className="text-white text-xs" />
+                      )}
+                    </div> */}
                   </div>
 
-                  <p className="mt-3 text-sm font-semibold truncate w-full text-center">
+                  <p className="text-sm font-medium truncate w-full text-center">
                     {p.name || "Anonymous"}
                   </p>
                 </motion.div>
               ))}
             </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center mt-20 text-gray-400"
-            >
-              <FaUserAlt className="text-5xl mb-3 opacity-60" />
-              <p>No participants yet. Waiting for others to join...</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </section>
+          </AnimatePresence>
+        </section>
+      </main>
 
-      {/* Controls */}
-      <div className="sticky bottom-6 left-0 right-0 flex flex-col sm:flex-row justify-center items-center gap-4">
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={toggleMic}
-          className={`px-8 py-3 rounded-full font-semibold shadow-lg transition-all text-white flex items-center gap-2 ${
-            isMicOn
-              ? "bg-green-600 hover:bg-green-500"
-              : "bg-red-600 hover:bg-red-500"
-          }`}
-        >
-          {isMicOn ? <FaMicrophone /> : <FaMicrophoneSlash />}
-          {isMicOn ? "Mic On" : "Mic Off"}
-        </motion.button>
+      {/* Bottom Control Bar */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="flex items-center gap-4 px-5 py-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
+          {/* Mic toggle */}
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={toggleMic}
+            className={`flex items-center gap-3 px-5 py-3 rounded-full ${
+              isMicOn
+                ? "bg-green-600 hover:bg-green-500 text-white"
+                : "bg-red-600 hover:bg-red-500 text-white"
+            }`}
+          >
+            {isMicOn ? <FaMicrophone /> : <FaMicrophoneSlash />}
+            <span className="hidden sm:block">
+              {isMicOn ? "Mic On" : "Mic Off"}
+            </span>
+          </motion.button>
 
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={leaveChannelUser}
-          className="px-8 py-3 rounded-full bg-gray-800 hover:bg-black text-white font-semibold shadow-lg transition"
-        >
-          🚪 Leave Room
-        </motion.button>
+          {/* Leave */}
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={leaveChannelUser}
+            className="flex items-center gap-2 px-5 py-3 rounded-full bg-white/20 hover:bg-white/30 text-white"
+          >
+            <FaPhoneSlash />
+            <span className="hidden sm:block">Leave</span>
+          </motion.button>
+        </div>
       </div>
     </div>
   );

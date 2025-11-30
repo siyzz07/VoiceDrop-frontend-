@@ -11,6 +11,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { useDispatch } from "react-redux";
 import { logout } from "../redux/Slice";
 import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../services/UserAPI";
 
 // Custom styled Material-UI Switch
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
@@ -83,12 +84,14 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async() => {
     dispatch(logout());
+
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
     localStorage.removeItem("roomIn");
     localStorage.removeItem("roomId");
+    await logoutUser()
     navigate("/");
   };
 
